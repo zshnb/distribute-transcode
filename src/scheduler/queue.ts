@@ -1,4 +1,5 @@
 import { Queue, QueueEvents } from "bullmq";
+import { getLogger } from "../logger";
 export type QueueParame = {
   name: string
   handleAddedEvent: (args: { jobId: string, name: string }) => void
@@ -13,6 +14,7 @@ const redisConnection = {
   host: 'localhost',
   port: 6379
 }
+const logger = getLogger('create-queue')
 export function createQueue(params: QueueParame) {
   const queue = new Queue(params.name, {
     connection: redisConnection
@@ -20,18 +22,37 @@ export function createQueue(params: QueueParame) {
   const queueEvent = new QueueEvents(params.name, {
     connection: redisConnection
   })
-  queueEvent.on('added', params.handleAddedEvent)
-  queueEvent.on('completed', params.handleCompletedEvent)
-  queueEvent.on('failed', params.handleFailedEvent)
+  queueEvent.on('added', (args) => {
+    params.handleAddedEvent(args)
+    logger.info(`job: ${args.jobId} add into ${params.name}`)
+  })
+  queueEvent.on('completed', (args, id) => {
+    params.handleCompletedEvent(args, id)
+    logger.info(`job: ${args.jobId} completed in the ${params.name}`)
+  })
+  queueEvent.on('failed', (args, id) => {
+    params.handleFailedEvent(args, id)
+    logger.info(`job: ${args.jobId} failed in the ${params.name}`)
+  })
+
   if (params.handleDuplicatedEvent) {
-    queueEvent.on('duplicated', params.handleDuplicatedEvent)
+    queueEvent.on('duplicated', (args, id) => {
+      params.handleDuplicatedEvent?.(args, id)
+      logger.info(`job: ${args.jobId} duplicated add in the ${params.name}, ignore it`)
+    })
   }
   if (params.handleProgressEvent) {
-    queueEvent.on('progress', params.handleProgressEvent)
+    queueEvent.on('progress', (args, id) => {
+      params.handleProgressEvent?.(args, id)
+      logger.info(`job: ${args.jobId} has progress update in the ${params.name}`)
+    })
   }
   if (params.handleRemovedEvent) {
-    queueEvent.on('removed', params.handleRemovedEvent)
+    queueEvent.on('removed', (args, id) => {
+      params.handleRemovedEvent?.(args, id)
+      logger.info(`job: ${args.jobId} is been removed in the ${params.name}`)
+    })
   }
-  
+
   return queue
 }

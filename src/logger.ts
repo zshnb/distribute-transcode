@@ -21,4 +21,5 @@ export function getLogger(name: string) {
       }]
     }
   })
+  return logger
 }
