@@ -1,0 +1,20 @@
+{
+  "name": "distribute-transcode",
+  "version": "1.0.0",
+  "description": "A distrbute system which can transcode large media via multiple machines",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "FFmpeg"
+  ],
+  "author": "zsh",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^20.5.6",
+    "bullmq": "^4.8.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
