@@ -1,7 +1,8 @@
 import { Queue, QueueEvents } from "bullmq";
 import { getLogger } from "../logger";
+import { QueueEnum } from "../types/queue";
 export type QueueParame = {
-  name: string
+  name: QueueEnum
   handleAddedEvent: (args: { jobId: string, name: string }) => void
   handleCompletedEvent: (args: { jobId: string, returnvalue: string, prev?: string }, id: string) => void
   handleProgressEvent?: (args: { jobId: string, data: number | object }, id: string) => void
