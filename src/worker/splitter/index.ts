@@ -1,10 +1,19 @@
-import { Worker } from "bullmq";
-import { QueueEnum } from "../../types/queue";
+import { Job, Worker } from "bullmq";
 import { getLogger } from "../../logger";
+import { processSplit } from "./splitter";
+import { SplitJobRequest, SplitJobResponse } from "../../types/worker/splitter";
+import { Context, runWithContext } from "../../context";
 
 const logger = getLogger('splitter-starter')
+let worker: Worker
 function start() {
-  const worker = new Worker<any, any, QueueEnum>('splitter', process, {
+  worker = new Worker('splitter', (job: Job) => {
+    const request = job.data as SplitJobRequest
+    const context: Context = {
+      taskId: request.taskId
+    }
+    return runWithContext<SplitJobResponse, Job>(context, processSplit, job)
+  }, {
     autorun: false,
     connection: {
       host: 'localhost',
@@ -13,9 +22,15 @@ function start() {
   })
   try {
     worker.run()
-  } catch(e) {
+    logger.info('start splitter worker')
+  } catch (e) {
     logger.error(e, 'start splitter error')
-  
+  }
+}
+
+export function stop() {
+  if (worker) {
+    worker.close()
   }
 }
 

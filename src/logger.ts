@@ -14,11 +14,7 @@ export function getLogger(name: string) {
     },
     timestamp: pino.stdTimeFunctions.isoTime,
     transport: {
-      targets: [{
-        target: 'pino-pretty',
-        options: {},
-        level: 'debug'
-      }]
+      target: 'pino-pretty'
     }
   })
   return logger
