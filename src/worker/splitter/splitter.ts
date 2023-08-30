@@ -14,7 +14,7 @@ export async function processSplit(job: Job): Promise<SplitJobResponse> {
   const request = job.data as SplitJobRequest
   const { fileStorageType } = request
   const videoPath = getVideoPath(request)
-  const segmentDir = await tmpDirFor(getCtx().taskId)
+  const segmentDir = await tmpDirFor(getCtx().taskId, 'segments')
   await createDir(segmentDir)
   const outputPattern = `${segmentDir}/segment_%02d.mp4`
   await splitVideo({
