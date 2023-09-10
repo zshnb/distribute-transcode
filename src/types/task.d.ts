@@ -1,20 +1,22 @@
-import { JobState } from "bullmq"
+import {JobState} from "bullmq"
 
 export type TaskCache = {
   createdAt: string
   finishedAt: string
   split: SplitCache
-  segments: SegmentCache[]
+  transcode: {
+    [index: number]: TranscodeCache
+  }
 }
 
-export type SegmentCache = {
-  index: number
+export type TranscodeCache = {
   state: JobState
   error?: string
 }
 
 export type SplitCache = {
-    state: JobState
-    segmentCount: number
-    error?: string
+  state: JobState
+  segmentCount: number
+  error?: string
 }
+

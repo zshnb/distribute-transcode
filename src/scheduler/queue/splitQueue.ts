@@ -2,7 +2,6 @@ import { Queue } from "bullmq";
 import { SplitJobRequest, SplitJobResponse } from "../../types/worker/splitter";
 import { createQueue } from "../queueCreator";
 import { getLogger } from "../../logger";
-import { schedulerRedisClient } from "../../redis";
 import { getTaskIdByJobId } from "../../util/taskIdUtil";
 import { setCreatedAt, setSplitCache } from "../../store/taskStore";
 
@@ -37,8 +36,8 @@ export function initSplitQueue() {
   logger.info('create split queue')
 }
 
-export function addSplitJob(request: SplitJobRequest) {
+export async function addSplitJob(request: SplitJobRequest) {
   const { taskId } = request
   const jobId = `${taskId}:split`
-  queue.add(jobId, request)
+  await queue.add(jobId, request)
 }

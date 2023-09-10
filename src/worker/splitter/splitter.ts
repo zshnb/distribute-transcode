@@ -1,12 +1,11 @@
 import { Job } from "bullmq";
 import { getLogger } from "../../logger";
 import { SplitVideoParams, SplitJobRequest, SplitJobResponse } from "../../types/worker/splitter";
-import { notNull } from "../../util/stringUtil";
-import { InvalidArgumentError } from "../../error";
 import { execFfmpeg } from "../../util/ffmpegUtil";
 import { getCtx } from "../../context";
 import { tmpDirFor } from "../../util/pathUtil";
 import { createDir, getDirFiles } from "../../util/folderUtil";
+import { getVideoPath } from "../../util/videoUtil";
 
 const logger = getLogger('splitter')
 export async function processSplit(job: Job): Promise<SplitJobResponse> {
@@ -34,13 +33,3 @@ async function splitVideo(params: SplitVideoParams) {
   await execFfmpeg(splitFfmpegCmd)
 }
 
-function getVideoPath(request: SplitJobRequest): string {
-  if (request.fileStorageType === 'FileSystem') {
-    return notNull(request.filePath)
-  } else if (request.fileStorageType === 'OSS') {
-    // todo download from oss
-    return ''
-  } else {
-    throw new InvalidArgumentError(`Unsupported fileStorageType ${request.fileStorageType}`)
-  }
-}

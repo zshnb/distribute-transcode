@@ -17,3 +17,5 @@ export class ContextNotFoundError extends Error {
     super('context not found')
   }
 }
+
+export class JobIdError extends Error {}

@@ -1,7 +1,5 @@
 import { spawn } from "child_process";
 import { getLogger } from "../logger";
-import { resolve } from "path";
-import { rejects } from "assert";
 
 export type ExecCommandParams = {
   cmd: string,

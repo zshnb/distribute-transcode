@@ -1,1 +1,1 @@
-export type QueueEnum = 'splitter'
+export type QueueEnum = 'splitter' | 'transcoder'
