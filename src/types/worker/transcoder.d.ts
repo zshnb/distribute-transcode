@@ -1,3 +1,5 @@
+import {FileStorageType} from "./splitter";
+
 export type TranscodeJobRequest = {
   taskId: string
   index: number
@@ -8,5 +10,7 @@ export type TranscodeJobRequest = {
 
 export type TranscodeJobResponse = {
   index: number
+  videoFile: string
+  fileStorageType: FileStorageType
 }
 

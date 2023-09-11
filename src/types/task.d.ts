@@ -11,6 +11,7 @@ export type TaskCache = {
 
 export type TranscodeCache = {
   state: JobState
+  videoFile: string
   error?: string
 }
 

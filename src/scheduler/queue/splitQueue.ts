@@ -8,7 +8,7 @@ import {addTranscodeJob} from "./transcodeQueue";
 
 const logger = getLogger('split-queue')
 let queue: Queue
-const queueName = 'splitter'
+const queueName = 'split'
 export function initSplitQueue() {
   queue = createQueue({
     name: queueName,

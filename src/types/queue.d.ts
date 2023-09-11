@@ -1,1 +1,1 @@
-export type QueueEnum = 'splitter' | 'transcoder'
+export type QueueEnum = 'split' | 'transcode' | 'concat'

@@ -6,12 +6,12 @@ import { getCtx } from "../../context";
 import { execFfmpeg } from "../../util/ffmpegUtil";
 import {getLogger} from "../../logger";
 
-const logger = getLogger('transcoder')
-async function processTranscode(job: Job): Promise<TranscodeJobResponse> {
+const logger = getLogger('concater')
+async function processConcat(job: Job): Promise<TranscodeJobResponse> {
   const request = job.data as TranscodeJobRequest
   const { index } = request
   const videoFile = getVideoFile(request)
-  logger.info(`transcoder received transcode job, segment index: ${index}, file: ${videoFile}`)
+  logger.info(`concater received concat job`)
   const transcodeVideoFile = `${await tmpDirFor(getCtx().taskId, 'transcode')}/${index}.mp4`
   const ffmpegCmd = `ffmpeg -y -i ${videoFile} -c:v libx264 ${transcodeVideoFile}`
   await execFfmpeg(ffmpegCmd)
@@ -21,5 +21,5 @@ async function processTranscode(job: Job): Promise<TranscodeJobResponse> {
 }
 
 export {
-  processTranscode
+  processConcat
 }

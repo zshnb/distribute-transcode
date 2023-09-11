@@ -2,13 +2,14 @@ import {Queue} from "bullmq";
 import {createQueue} from "../queueCreator";
 import {getLogger} from "../../logger";
 import {getTaskIdByJobId} from "../../util/taskIdUtil";
-import {setTranscodeCache} from "../../store/taskStore";
+import {getSplitCache, getTranscodeCaches, setTranscodeCache} from "../../store/taskStore";
 import {TranscodeJobRequest, TranscodeJobResponse} from "../../types/worker/transcoder";
 import {JobIdError} from "../../error";
+import {addConcatJob} from "./concatQueue";
 
 const logger = getLogger('transcode-queue')
 let queue: Queue
-const queueName = 'transcoder'
+const queueName = 'transcode'
 export function initTranscodeQueue() {
   queue = createQueue({
     name: queueName,
@@ -21,11 +22,26 @@ export function initTranscodeQueue() {
 
     },
     handleCompletedEvent: async (args, id) => {
-      const {index} = JSON.parse(JSON.stringify(args.returnvalue)) as TranscodeJobResponse
+      const {index, videoFile, fileStorageType} = JSON.parse(JSON.stringify(args.returnvalue)) as TranscodeJobResponse
       const taskId = getTaskIdByJobId(args.jobId)
       await setTranscodeCache(taskId, index, {
-        state: 'completed'
+        state: 'completed',
+        videoFile
       })
+      await checkAndAddConcatJob()
+      async function checkAndAddConcatJob() {
+        const splitCache = await getSplitCache(taskId)
+        const segmentCount = splitCache.segmentCount
+        const transcodeCaches = await getTranscodeCaches(taskId)
+        const completeSegmentCount = Object.values(transcodeCaches).filter(it => it.state === 'completed').length
+        if (segmentCount === completeSegmentCount) {
+          await addConcatJob({
+            taskId,
+            segmentFiles: Object.values(transcodeCaches).map(it => it.videoFile),
+            fileStorageType
+          })
+        }
+      }
     },
     handleFailedEvent: async (args, id) => {
       const taskId = getTaskIdByJobId(args.jobId)

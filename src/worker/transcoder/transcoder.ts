@@ -9,7 +9,7 @@ import {getLogger} from "../../logger";
 const logger = getLogger('transcoder')
 async function processTranscode(job: Job): Promise<TranscodeJobResponse> {
   const request = job.data as TranscodeJobRequest
-  const { index } = request
+  const { index, fileStorageType } = request
   const videoFile = getVideoFile(request)
   logger.info(`transcoder received transcode job, segment index: ${index}, file: ${videoFile}`)
   const transcodeVideoFile = `${await tmpDirFor(getCtx().taskId, 'transcode')}/${index}.mp4`
@@ -17,6 +17,8 @@ async function processTranscode(job: Job): Promise<TranscodeJobResponse> {
   await execFfmpeg(ffmpegCmd)
   return {
     index,
+    videoFile: transcodeVideoFile,
+    fileStorageType
   }
 }
 

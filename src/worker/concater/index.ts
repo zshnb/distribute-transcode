@@ -2,13 +2,13 @@ import { Job, Worker } from "bullmq";
 import { getLogger } from "../../logger";
 import { SplitJobRequest, SplitJobResponse } from "../../types/worker/splitter";
 import { Context, runWithContext } from "../../context";
-import { processTranscode } from "./transcoder";
+import { processTranscode } from "./concater";
 import {TranscodeJobRequest, TranscodeJobResponse} from "../../types/worker/transcoder";
 
-const logger = getLogger('transcoder-starter')
+const logger = getLogger('concater-starter')
 let worker: Worker
 function start() {
-  worker = new Worker('transcoder', async (job: Job) => {
+  worker = new Worker('concater', async (job: Job) => {
     try {
       const request = job.data as TranscodeJobRequest
       const context: Context = {
@@ -16,7 +16,7 @@ function start() {
       }
       return await runWithContext<TranscodeJobResponse, Job>(context, processTranscode, job)
     } catch (e) {
-      logger.error(e, 'process transcode failed')
+      logger.error(e, 'process concater failed')
       throw e
     }
   }, {

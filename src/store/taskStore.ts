@@ -20,6 +20,14 @@ async function setSplitCache(taskId: string, split: Partial<SplitCache>) {
   logger.info(`hset ${splitField} ${JSON.stringify(split)}`)
 }
 
+async function getSplitCache(taskId: string): Promise<SplitCache> {
+  const value = await schedulerRedisClient.hGet(taskId, splitField)
+  if(value) {
+    return JSON.parse(value) as SplitCache
+  } else {
+    return {} as SplitCache
+  }
+}
 async function getTranscodeCaches(taskId: string): Promise<Record<number, TranscodeCache>> {
   const value = await schedulerRedisClient.hGet(taskId, transcodeField)
   if (value) {
@@ -29,22 +37,27 @@ async function getTranscodeCaches(taskId: string): Promise<Record<number, Transc
   }
 }
 
-async function setTranscodeCache(taskId: string, index: number, transcode: Partial<TranscodeCache>) {
+async function setTranscodeCache(taskId: string, index: number, transcodeCache: Partial<TranscodeCache>) {
   await transcodeMutex.runExclusive(async () => {
     const transcodeCaches = await getTranscodeCaches(taskId)
-    if (transcode.state) {
+    if (transcodeCache.state && transcodeCache.videoFile) {
       transcodeCaches[index] = {
-        state: transcode.state,
-        error: transcode.error
+        state: transcodeCache.state,
+        videoFile: transcodeCache.videoFile,
+        error: transcodeCache.error
       }
+      await schedulerRedisClient.hSet(taskId, transcodeField, JSON.stringify(transcodeCaches))
+      logger.info(`hset ${taskId} ${transcodeField} ${JSON.stringify(transcodeCaches)}`)
+    } else {
+      logger.error(`transcode: ${JSON.stringify(transcodeCache)} doesn't exist video file`)
     }
-    await schedulerRedisClient.hSet(taskId, transcodeField, JSON.stringify(transcodeCaches))
-    logger.info(`hset ${taskId} ${transcodeField} ${JSON.stringify(transcodeCaches)}`)
   })
 }
 
 export {
   setCreatedAt,
   setSplitCache,
-  setTranscodeCache
+  getSplitCache,
+  setTranscodeCache,
+  getTranscodeCaches
 }
