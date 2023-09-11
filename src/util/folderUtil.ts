@@ -1,5 +1,6 @@
 import { existsSync } from "fs";
 import * as fs from "fs/promises";
+import path from "path";
 
 export async function createDir(path: string) {
   return fs.mkdir(path, { recursive: true })
@@ -14,5 +15,5 @@ export async function getDirFiles(dir: string) {
     return []
   }
   const files = await fs.readdir(dir)
-  return files
+  return files.map((it) => `${path.resolve(dir)}/${it}`)
 }

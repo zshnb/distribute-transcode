@@ -21,7 +21,6 @@ export function initTranscodeQueue() {
 
     },
     handleCompletedEvent: async (args, id) => {
-      logger.info(`returnvalue: ${args.returnvalue}`)
       const {index} = JSON.parse(JSON.stringify(args.returnvalue)) as TranscodeJobResponse
       const taskId = getTaskIdByJobId(args.jobId)
       await setTranscodeCache(taskId, index, {

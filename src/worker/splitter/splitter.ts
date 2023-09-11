@@ -23,6 +23,7 @@ export async function processSplit(job: Job): Promise<SplitJobResponse> {
   })
 
   const segmentFiles = await getDirFiles(segmentDir)
+  logger.info(`segmentFiles: ${segmentFiles}`)
   logger.info(`segment ${videoFile} into ${segmentFiles.length} segments`)
   return {
     fileStorageType,
