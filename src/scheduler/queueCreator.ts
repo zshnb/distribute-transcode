@@ -33,7 +33,7 @@ export function createQueue(params: QueueParame) {
   })
   queueEvent.on('failed', (args, id) => {
     params.handleFailedEvent(args, id)
-    logger.info(`job: ${args.jobId} failed in the ${params.name}`)
+    logger.info(`job: ${args.jobId} failed in the ${params.name}, reason: ${args.failedReason}`)
   })
 
   if (params.handleDuplicatedEvent) {

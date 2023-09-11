@@ -7,12 +7,17 @@ import { Context, runWithContext } from "../../context";
 const logger = getLogger('splitter-starter')
 let worker: Worker
 function start() {
-  worker = new Worker('splitter', (job: Job) => {
-    const request = job.data as SplitJobRequest
-    const context: Context = {
-      taskId: request.taskId
+  worker = new Worker('splitter', async (job: Job) => {
+    try {
+      const request = job.data as SplitJobRequest
+      const context: Context = {
+        taskId: request.taskId
+      }
+      return await runWithContext<SplitJobResponse, Job>(context, processSplit, job)
+    } catch (e) {
+      logger.error(e, 'process split failed')
+      throw e
     }
-    return runWithContext<SplitJobResponse, Job>(context, processSplit, job)
   }, {
     autorun: false,
     connection: {

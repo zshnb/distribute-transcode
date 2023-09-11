@@ -8,10 +8,10 @@ import {JobIdError} from "../../error";
 
 const logger = getLogger('transcode-queue')
 let queue: Queue
-
+const queueName = 'transcoder'
 export function initTranscodeQueue() {
   queue = createQueue({
-    name: 'transcoder',
+    name: queueName,
     handleAddedEvent: async (args: { jobId: string, name: string }) => {
       const taskId = getTaskIdByJobId(args.jobId)
       const index = getTranscodeIndex(args.jobId)
@@ -21,7 +21,8 @@ export function initTranscodeQueue() {
 
     },
     handleCompletedEvent: async (args, id) => {
-      const {index} = JSON.parse(args.jobId) as TranscodeJobResponse
+      logger.info(`returnvalue: ${args.returnvalue}`)
+      const {index} = JSON.parse(JSON.stringify(args.returnvalue)) as TranscodeJobResponse
       const taskId = getTaskIdByJobId(args.jobId)
       await setTranscodeCache(taskId, index, {
         state: 'completed'
@@ -50,5 +51,7 @@ function getTranscodeIndex(jobId: string) {
 export async function addTranscodeJob(request: TranscodeJobRequest) {
   const {taskId, index} = request
   const jobId = `${taskId}:transcode:${index}`
-  await queue.add(jobId, request)
+  await queue.add(queueName, request, {
+    jobId
+  })
 }

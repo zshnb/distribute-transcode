@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "scheduler": "npx ts-node src/scheduler/index.ts",
-    "splitter": "npx ts-node src/worker/splitter/index.ts"
+    "splitter": "npx ts-node src/worker/splitter/index.ts",
+    "transcoder": "npx ts-node src/worker/transcoder/index.ts"
   },
   "keywords": [
     "FFmpeg"

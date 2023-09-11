@@ -12,11 +12,12 @@ function getRedisClient() {
     url: `redis://${redisConnection.host}:${redisConnection.port}`
   })
   logger.info('create redis client')
+  client.connect()
   return client
 }
 
-function closeRedisClient(client: RedisClientType) {
-  client.disconnect()
+async function closeRedisClient(client: RedisClientType) {
+  await client.disconnect()
 }
 
 const schedulerRedisClient = getRedisClient()

@@ -19,3 +19,5 @@ export class ContextNotFoundError extends Error {
 }
 
 export class JobIdError extends Error {}
+
+export class ChildProcessExecutionError extends Error {}

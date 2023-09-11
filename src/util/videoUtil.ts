@@ -1,9 +1,8 @@
-import { exit } from "process"
 import { InvalidArgumentError } from "../error"
 import { FileStorageType } from "../types/worker/splitter"
 import { notNull } from "./stringUtil"
 
-function getVideoPath({
+function getVideoFile({
   fileStorageType,
   filePath,
   fileUri
@@ -23,5 +22,5 @@ function getVideoPath({
 }
 
 export {
-  getVideoPath
+  getVideoFile
 }

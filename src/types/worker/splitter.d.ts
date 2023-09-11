@@ -12,7 +12,7 @@ export type SplitJobResponse = {
 }
 
 export type SplitVideoParams = {
-  videoPath: string
+  videoFile: string
   segmentLength: number
   outputPattern: string
 }

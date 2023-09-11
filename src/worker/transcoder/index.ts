@@ -3,16 +3,22 @@ import { getLogger } from "../../logger";
 import { SplitJobRequest, SplitJobResponse } from "../../types/worker/splitter";
 import { Context, runWithContext } from "../../context";
 import { processTranscode } from "./transcoder";
+import {TranscodeJobRequest, TranscodeJobResponse} from "../../types/worker/transcoder";
 
 const logger = getLogger('transcoder-starter')
 let worker: Worker
 function start() {
-  worker = new Worker('transcoder', (job: Job) => {
-    const request = job.data as SplitJobRequest
-    const context: Context = {
-      taskId: request.taskId
+  worker = new Worker('transcoder', async (job: Job) => {
+    try {
+      const request = job.data as TranscodeJobRequest
+      const context: Context = {
+        taskId: request.taskId
+      }
+      return await runWithContext<TranscodeJobResponse, Job>(context, processTranscode, job)
+    } catch (e) {
+      logger.error(e, 'process transcode failed')
+      throw e
     }
-    return runWithContext<SplitJobResponse, Job>(context, processTranscode, job)
   }, {
     autorun: false,
     connection: {
