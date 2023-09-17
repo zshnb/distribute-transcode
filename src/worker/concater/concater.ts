@@ -34,8 +34,10 @@ async function processConcat(job: Job): Promise<ConcatJobResponse> {
   }
 
   const outputFile = `${concatDir}/result.mp4`
-  const concatCmd = `ffmpeg -y -f concat -safe 0 -i ${concatFile} -c copy ${outputFile}`
-  await execFfmpeg(concatCmd)
+  const concatCmd = `ffmpeg -f concat -safe 0 -i ${concatFile} -c copy ${outputFile}`
+  await execFfmpeg(concatCmd, {
+    override: true
+  })
 
   return {
     videoFile: outputFile

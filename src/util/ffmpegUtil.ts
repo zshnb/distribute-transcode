@@ -9,10 +9,10 @@ export async function execFfmpeg(cmd: string, options: {
 }) {
   const args = cmd.split(' ').slice(1)
   function parseBasicParams() {
-    const args = []
+    const args = ['-hide_banner']
     options.loglevel === undefined ? 
-      args.push('error') :
-      args.push(options.loglevel)
+      args.push('-loglevel', 'info') :
+      args.push('-loglevel', options.loglevel)
 
     if (options.override === true) {
       args.push('-y')

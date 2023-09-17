@@ -13,8 +13,10 @@ async function processTranscode(job: Job): Promise<TranscodeJobResponse> {
   const videoFile = getVideoFile(request)
   logger.info(`transcoder received transcode job, segment index: ${index}, file: ${videoFile}`)
   const transcodeVideoFile = `${await tmpDirFor(getCtx().taskId, 'transcode')}/${index}.mp4`
-  const ffmpegCmd = `ffmpeg -y -i ${videoFile} -c:v libx264 ${transcodeVideoFile}`
-  await execFfmpeg(ffmpegCmd)
+  const ffmpegCmd = `ffmpeg -i ${videoFile} -c:v libx264 ${transcodeVideoFile}`
+  await execFfmpeg(ffmpegCmd, {
+    override: true
+  })
   return {
     index,
     videoFile: transcodeVideoFile,

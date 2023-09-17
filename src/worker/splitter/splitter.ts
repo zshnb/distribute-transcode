@@ -33,6 +33,8 @@ export async function processSplit(job: Job): Promise<SplitJobResponse> {
 
 async function splitVideo(params: SplitVideoParams) {
   const splitFfmpegCmd = `ffmpeg -i ${params.videoFile} -c copy -map 0 -f segment -segment_time ${params.segmentLength} ${params.outputPattern}`
-  await execFfmpeg(splitFfmpegCmd)
+  await execFfmpeg(splitFfmpegCmd, {
+    override: true
+  })
 }
 
