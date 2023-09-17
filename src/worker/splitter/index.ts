@@ -11,11 +11,12 @@ function start() {
     try {
       const request = job.data as SplitJobRequest
       const context: Context = {
-        taskId: request.taskId
+        taskId: request.taskId,
+        jobId: job.id
       }
       return await runWithContext<SplitJobResponse, Job>(context, processSplit, job)
     } catch (e) {
-      logger.error(e, 'process split failed')
+      logger.errorObj(e, 'process split failed')
       throw e
     }
   }, {
@@ -29,7 +30,7 @@ function start() {
     worker.run()
     logger.info('start splitter worker')
   } catch (e) {
-    logger.error(e, 'start splitter error')
+    logger.errorObj(e, 'start splitter error')
   }
 }
 
@@ -40,3 +41,4 @@ export function stop() {
 }
 
 start()
+

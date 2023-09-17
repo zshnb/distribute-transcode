@@ -11,11 +11,12 @@ function start() {
     try {
       const request = job.data as TranscodeJobRequest
       const context: Context = {
-        taskId: request.taskId
+        taskId: request.taskId,
+        jobId: job.id
       }
       return await runWithContext<TranscodeJobResponse, Job>(context, processTranscode, job)
     } catch (e) {
-      logger.error(e, 'process transcode failed')
+      logger.errorObj(e, 'process transcode failed')
       throw e
     }
   }, {
@@ -30,7 +31,7 @@ function start() {
     worker.run()
     logger.info('start transcoder worker')
   } catch (e) {
-    logger.error(e, 'start transcoder error')
+    logger.errorObj(e, 'start transcoder error')
   }
 }
 

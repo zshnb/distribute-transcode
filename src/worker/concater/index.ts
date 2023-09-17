@@ -11,11 +11,12 @@ function start() {
     try {
       const request = job.data as ConcatJobRequest
       const context: Context = {
-        taskId: request.taskId
+        taskId: request.taskId,
+        jobId: job.id
       }
       return await runWithContext<ConcatJobResponse, Job>(context, processConcat, job)
     } catch (e) {
-      logger.error(e, 'process concater failed')
+      logger.errorObj(e, 'process concater failed')
       throw e
     }
   }, {
@@ -30,7 +31,7 @@ function start() {
     worker.run()
     logger.info('start concater worker')
   } catch (e) {
-    logger.error(e, 'start concater error')
+    logger.errorObj(e, 'start concater error')
   }
 }
 

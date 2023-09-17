@@ -1,9 +1,9 @@
-import { Job } from "bullmq"
 import { ContextNotFoundError } from "./error"
 import {AsyncLocalStorage} from 'async_hooks'
 
 export type Context = {
   taskId: string
+  jobId?: string
 }
 
 const asyncStorage = new AsyncLocalStorage<Context>()
@@ -14,7 +14,7 @@ export async function runWithContext<ReturnType, T>(context: Context, fn: (args:
 export function getCtx(): Context {
   const context = asyncStorage.getStore()
   if (!context) {
-    throw new ContextNotFoundError()
+    return {} as Context
   }
   return context
 }
