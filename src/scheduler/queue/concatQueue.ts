@@ -2,10 +2,8 @@ import {Queue} from "bullmq";
 import {createQueue} from "../queueCreator";
 import {getLogger} from "../../logger";
 import {getTaskIdByJobId} from "../../util/taskIdUtil";
-import {setTranscodeCache} from "../../store/taskStore";
-import {TranscodeJobRequest, TranscodeJobResponse} from "../../types/worker/transcoder";
-import {JobIdError} from "../../error";
 import {ConcatJobRequest} from "../../types/worker/concater";
+import { setConcatCache } from "../../store/taskStore";
 
 const logger = getLogger('concat-queue')
 let queue: Queue
@@ -18,9 +16,16 @@ export function initConcatQueue() {
     },
     handleCompletedEvent: async (args, id) => {
       const taskId = getTaskIdByJobId(args.jobId)
+      await setConcatCache(taskId, {
+        state: 'completed'
+      })
     },
     handleFailedEvent: async (args, id) => {
       const taskId = getTaskIdByJobId(args.jobId)
+      await setConcatCache(taskId, {
+        state: 'failed',
+        error: args.failedReason
+      })
     }
   })
   logger.info('create concat queue')

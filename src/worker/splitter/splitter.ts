@@ -9,8 +9,8 @@ import { getVideoFile } from "../../util/videoUtil";
 
 const logger = getLogger('splitter')
 export async function processSplit(job: Job): Promise<SplitJobResponse> {
-  logger.info(`splitter received split job`)
   const request = job.data as SplitJobRequest
+  logger.info(`splitter received split job, request: ${JSON.stringify(request)}`)
   const { fileStorageType } = request
   const videoFile = getVideoFile(request)
   const segmentDir = await tmpDirFor(getCtx().taskId, 'segments')

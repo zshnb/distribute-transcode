@@ -1,10 +1,11 @@
 import {schedulerRedisClient} from "../redis";
-import {SplitCache, TranscodeCache} from "../types/task";
+import {ConcatCache, SplitCache, TranscodeCache} from "../types/task";
 import {Mutex} from "async-mutex";
 import {getLogger} from "../logger";
 
 const splitField = 'split'
 const transcodeField = 'transcode'
+const concatField = 'concat'
 const createdAtField = 'createdAt'
 const transcodeMutex = new Mutex()
 const logger = getLogger('task-store')
@@ -40,18 +41,30 @@ async function getTranscodeCaches(taskId: string): Promise<Record<number, Transc
 async function setTranscodeCache(taskId: string, index: number, transcodeCache: Partial<TranscodeCache>) {
   await transcodeMutex.runExclusive(async () => {
     const transcodeCaches = await getTranscodeCaches(taskId)
-    if (transcodeCache.state && transcodeCache.videoFile) {
+    if (transcodeCache.state) {
       transcodeCaches[index] = {
         state: transcodeCache.state,
-        videoFile: transcodeCache.videoFile,
+        videoFile: transcodeCache.videoFile || '',
         error: transcodeCache.error
       }
       await schedulerRedisClient.hSet(taskId, transcodeField, JSON.stringify(transcodeCaches))
       logger.info(`hset ${taskId} ${transcodeField} ${JSON.stringify(transcodeCaches)}`)
-    } else {
-      logger.error(`transcode: ${JSON.stringify(transcodeCache)} doesn't exist video file`)
-    }
+    } 
   })
+}
+
+async function setConcatCache(taskId: string, concatCache: Partial<ConcatCache>) {
+  await schedulerRedisClient.hSet(taskId, concatField, JSON.stringify(concatCache))
+  logger.info(`hset ${concatField} ${JSON.stringify(concatCache)}`)
+}
+
+async function getConcatCache(taskId: string): Promise<ConcatCache> {
+  const value = await schedulerRedisClient.hGet(taskId, concatField)
+  if (value) {
+    return JSON.parse(value) as ConcatCache
+  } else {
+    return {} as ConcatCache
+  }
 }
 
 export {
@@ -59,5 +72,7 @@ export {
   setSplitCache,
   getSplitCache,
   setTranscodeCache,
-  getTranscodeCaches
+  getTranscodeCaches,
+  setConcatCache,
+  getConcatCache
 }

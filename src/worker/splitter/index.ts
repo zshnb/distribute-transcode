@@ -7,7 +7,7 @@ import { Context, runWithContext } from "../../context";
 const logger = getLogger('splitter-starter')
 let worker: Worker
 function start() {
-  worker = new Worker('splitter', async (job: Job) => {
+  worker = new Worker('split', async (job: Job) => {
     try {
       const request = job.data as SplitJobRequest
       const context: Context = {

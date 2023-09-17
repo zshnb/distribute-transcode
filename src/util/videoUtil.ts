@@ -1,3 +1,4 @@
+import path from "path"
 import { InvalidArgumentError } from "../error"
 import { FileStorageType } from "../types/worker/splitter"
 import { notNull } from "./stringUtil"
@@ -12,7 +13,7 @@ function getVideoFile({
   fileUri?: string
 }): string {
   if (fileStorageType === 'FileSystem') {
-    return notNull(filePath)
+    return path.resolve(notNull(filePath))
   } else if (fileStorageType === 'OSS') {
     // todo download from oss
     return ''
@@ -24,3 +25,9 @@ function getVideoFile({
 export {
   getVideoFile
 }
+
+console.log(getVideoFile({
+  fileStorageType: 'FileSystem',
+  filePath: 'tmp/230917t3b7/transcode/0.mp4'
+}));
+

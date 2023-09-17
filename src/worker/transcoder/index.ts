@@ -1,6 +1,5 @@
 import { Job, Worker } from "bullmq";
 import { getLogger } from "../../logger";
-import { SplitJobRequest, SplitJobResponse } from "../../types/worker/splitter";
 import { Context, runWithContext } from "../../context";
 import { processTranscode } from "./transcoder";
 import {TranscodeJobRequest, TranscodeJobResponse} from "../../types/worker/transcoder";
@@ -8,7 +7,7 @@ import {TranscodeJobRequest, TranscodeJobResponse} from "../../types/worker/tran
 const logger = getLogger('transcoder-starter')
 let worker: Worker
 function start() {
-  worker = new Worker('transcoder', async (job: Job) => {
+  worker = new Worker('transcode', async (job: Job) => {
     try {
       const request = job.data as TranscodeJobRequest
       const context: Context = {

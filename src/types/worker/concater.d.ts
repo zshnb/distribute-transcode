@@ -3,7 +3,7 @@ import {FileStorageType} from "./splitter";
 export type ConcatJobRequest = {
   taskId: string
   fileStorageType: FileStorageType
-  segmentFiles: SegmentFile[]
+  segmentFiles: SegmentFile
 }
 
 export type SegmentFile = {

@@ -21,3 +21,7 @@ export type SplitCache = {
   error?: string
 }
 
+export type ConcatCache = {
+  state: JobState
+  error?: string
+}

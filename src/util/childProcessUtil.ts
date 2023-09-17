@@ -8,11 +8,13 @@ export type ExecCommandParams = {
 }
 const logger = getLogger('childProcessUtil')
 export async function execCommand(params: ExecCommandParams) {
+  logger.info(`exec ${params.cmd} ${params.params.join(' ')}`)
   const p = spawn(params.cmd, params.params, {
     stdio: 'pipe'
   })
 
   return new Promise((resolve, reject) => {
+    const start = Date.now()
     p.stdout.on('data', (data) => {
       logger.info(`${params.cmd} stdout: ${data}`)
     })
@@ -23,7 +25,8 @@ export async function execCommand(params: ExecCommandParams) {
     })
 
     p.on('close', (code) => {
-      logger.info(`${params.cmd} ${params.params.join(' ')} exit with code ${code}`)
+      const end = Date.now()
+      logger.info(`${params.cmd} ${params.params.join(' ')} exit with code ${code}, time cost: ${((end - start) / 1000).toFixed(1)}s`)
       if (code === 0) {
         resolve(undefined)
       } else {
@@ -31,4 +34,6 @@ export async function execCommand(params: ExecCommandParams) {
       }
     })
   })
+
 }
+
