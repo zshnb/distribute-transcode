@@ -4,7 +4,8 @@ import {ChildProcessExecutionError} from "../error";
 
 export type ExecCommandParams = {
   cmd: string,
-  params: string[]
+  params: string[],
+  onStdOutData?: () => void
 }
 const logger = getLogger('childProcessUtil')
 export async function execCommand(params: ExecCommandParams) {
@@ -15,13 +16,21 @@ export async function execCommand(params: ExecCommandParams) {
 
   return new Promise((resolve, reject) => {
     const start = Date.now()
+    let stderr = ''
+    let lastDataUpdate = Date.now()
     p.stdout.on('data', (data) => {
-      logger.info(`${params.cmd} stdout: ${data}`)
+      if (Date.now() - lastDataUpdate >= 1000) {
+        logger.info(`${params.cmd} stdout: ${data}`)
+        lastDataUpdate = Date.now()
+      }
     })
 
     p.stderr.on('data', (data) => {
-      logger.error(`${params.cmd} stderr: ${data}`)
-      reject(new ChildProcessExecutionError(`${params.cmd} stderr: ${data}`))
+      if (Date.now() - lastDataUpdate >= 1000) {
+        logger.info(`${params.cmd} stderr: ${data}`)
+        lastDataUpdate = Date.now()
+      }
+      stderr = data
     })
 
     p.on('close', (code) => {
@@ -30,10 +39,9 @@ export async function execCommand(params: ExecCommandParams) {
       if (code === 0) {
         resolve(undefined)
       } else {
-        reject(new ChildProcessExecutionError(`${params.cmd} exit non 0`))
+        reject(new ChildProcessExecutionError(`${params.cmd} exit non 0, last error: ${stderr}`))
       }
     })
   })
-
 }
 
