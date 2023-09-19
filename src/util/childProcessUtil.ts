@@ -2,6 +2,7 @@ import { spawn } from "child_process";
 import { getLogger } from "../logger";
 import {ChildProcessExecutionError} from "../error";
 
+const dataUpdatePeriod = 2000
 export type ExecCommandParams = {
   cmd: string,
   params: string[],
@@ -18,22 +19,22 @@ export async function execCommand(params: ExecCommandParams) {
     const start = Date.now()
     let stderr = ''
     let lastDataUpdate = Date.now()
-    p.stdout.on('data', (data) => {
-      if (Date.now() - lastDataUpdate >= 1000) {
-        logger.info(`${params.cmd} stdout: ${data}`)
+    p.stdout.on('data', (data: string) => {
+      if (Date.now() - lastDataUpdate >= dataUpdatePeriod) {
+        logger.debug(`${params.cmd} stdout: ${data}`)
         if (params.onStdOutData) {
-          params.onStdOutData(data)
+          params.onStdOutData(data.toString())
         }
         lastDataUpdate = Date.now()
       }
     })
 
-    p.stderr.on('data', (data) => {
-      if (Date.now() - lastDataUpdate >= 1000) {
-        logger.info(`${params.cmd} stderr: ${data}`)
+    p.stderr.on('data', (data: string) => {
+      if (Date.now() - lastDataUpdate >= dataUpdatePeriod) {
+        logger.debug(`${params.cmd} stderr: ${data}`)
         lastDataUpdate = Date.now()
         if (params.onStdOutData) {
-          params.onStdOutData(data)
+          params.onStdOutData(data.toString())
         }
       }
       stderr = data

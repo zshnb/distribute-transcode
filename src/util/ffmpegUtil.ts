@@ -6,7 +6,7 @@ const logger = getLogger('ffmpegUtil')
 async function execFfmpeg(cmd: string, options: {
   loglevel?: Loglevel
   override?: boolean
-  onProgress: (execProgress: FfmpegExecProgress) => void
+  onProgress?: (execProgress: FfmpegExecProgress) => void
 }) {
   const args = cmd.split(' ').slice(1)
   function parseBasicParams() {
@@ -24,10 +24,10 @@ async function execFfmpeg(cmd: string, options: {
   await execCommand({
     cmd: 'ffmpeg',
     params: parseBasicParams().concat(args),
-    onStdOutData: (data) => {
+    onStdOutData: (data: string) => {
       const progress = getFfmpegProgress(data)
       if (progress) {
-        options.onProgress(progress)
+        options.onProgress && options.onProgress(progress)
       }
     }
   })
@@ -41,7 +41,7 @@ function getFfmpegProgress(data: string): FfmpegExecProgress | undefined {
     const speed = matchResult[2]
     return {
       frames: parseInt(frames),
-      speed: parseInt(speed)
+      speed: parseFloat(speed)
     }
   }
 }

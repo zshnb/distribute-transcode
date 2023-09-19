@@ -26,8 +26,3 @@ export {
   getVideoFile
 }
 
-console.log(getVideoFile({
-  fileStorageType: 'FileSystem',
-  filePath: 'tmp/230917t3b7/transcode/0.mp4'
-}));
-
