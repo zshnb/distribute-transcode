@@ -2,6 +2,7 @@ import path from "path"
 import { InvalidArgumentError } from "../error"
 import { FileStorageType } from "../types/worker/splitter"
 import { notNull } from "./stringUtil"
+import { FfProbeStream } from "../types/ffmpeg"
 
 function getVideoFile({
   fileStorageType,
@@ -22,7 +23,20 @@ function getVideoFile({
   }
 }
 
+function getVideoFps(videoStream: FfProbeStream): number {
+  const frameRate = videoStream.r_frame_rate
+  const array = frameRate.split('/') // 60 / 1
+  return parseInt(array[0])
+}
+
+function getVideoDuration(videoStream: FfProbeStream): number {
+  const duration = videoStream.duration
+  return duration === 'N/A' ? 0 : duration
+}
+
 export {
-  getVideoFile
+  getVideoFile,
+  getVideoFps,
+  getVideoDuration
 }
 

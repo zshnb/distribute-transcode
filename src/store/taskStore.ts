@@ -1,5 +1,5 @@
 import {schedulerRedisClient} from "../redis";
-import {ConcatCache, SplitCache, TranscodeCache} from "../types/task";
+import {ConcatCache, SplitCache, TranscodeCache, TranscodeProgressData} from "../types/task";
 import {Mutex} from "async-mutex";
 import {getLogger} from "../logger";
 
@@ -29,10 +29,10 @@ async function getSplitCache(taskId: string): Promise<SplitCache> {
     return {} as SplitCache
   }
 }
-async function getTranscodeCaches(taskId: string): Promise<Record<number, TranscodeCache>> {
+async function getTranscodeCaches(taskId: string): Promise<Record<string, TranscodeCache>> {
   const value = await schedulerRedisClient.hGet(taskId, transcodeField)
   if (value) {
-    return JSON.parse(value) as Record<number, TranscodeCache>
+    return JSON.parse(value) as Record<string, TranscodeCache>
   } else {
     return {}
   }
@@ -41,15 +41,20 @@ async function getTranscodeCaches(taskId: string): Promise<Record<number, Transc
 async function setTranscodeCache(taskId: string, index: number, transcodeCache: Partial<TranscodeCache>) {
   await transcodeMutex.runExclusive(async () => {
     const transcodeCaches = await getTranscodeCaches(taskId)
-    if (transcodeCache.state) {
+    if (!transcodeCaches[index]) {
       transcodeCaches[index] = {
-        state: transcodeCache.state,
-        videoFile: transcodeCache.videoFile || '',
-        error: transcodeCache.error
+        state: 'active',
+        progress: {
+          totalFrames: 0,
+          frames: 0,
+          speed: 0
+        },
+        videoFile: ''
       }
-      await schedulerRedisClient.hSet(taskId, transcodeField, JSON.stringify(transcodeCaches))
-      logger.info(`hset ${taskId} ${transcodeField} ${JSON.stringify(transcodeCaches)}`)
-    } 
+    }
+    transcodeCaches[index] = Object.assign(transcodeCaches[index], transcodeCache)
+    await schedulerRedisClient.hSet(taskId, transcodeField, JSON.stringify(transcodeCaches))
+    logger.info(`hset ${taskId} ${transcodeField} ${JSON.stringify(transcodeCaches)}`)
   })
 }
 

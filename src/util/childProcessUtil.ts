@@ -17,6 +17,7 @@ export async function execCommand(params: ExecCommandParams) {
 
   return new Promise((resolve, reject) => {
     const start = Date.now()
+    let stdout = ''
     let stderr = ''
     let lastDataUpdate = Date.now()
     p.stdout.on('data', (data: string) => {
@@ -27,6 +28,7 @@ export async function execCommand(params: ExecCommandParams) {
         }
         lastDataUpdate = Date.now()
       }
+      stdout += data.toString()
     })
 
     p.stderr.on('data', (data: string) => {
@@ -37,14 +39,14 @@ export async function execCommand(params: ExecCommandParams) {
           params.onStdOutData(data.toString())
         }
       }
-      stderr = data
+      stderr += data.toString()
     })
 
-    p.on('close', (code) => {
+    p.on('close', (code, signal) => {
       const end = Date.now()
-      logger.info(`${params.cmd} ${params.params.join(' ')} exit with code ${code}, time cost: ${((end - start) / 1000).toFixed(1)}s`)
+      logger.info(`${params.cmd} ${params.params.join(' ')} exit with code ${code}, signal: ${signal}, time cost: ${((end - start) / 1000).toFixed(1)}s`)
       if (code === 0) {
-        resolve(undefined)
+        resolve(stdout)
       } else {
         reject(new ChildProcessExecutionError(`${params.cmd} exit non 0, last error: ${stderr}`))
       }

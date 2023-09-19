@@ -1,8 +1,6 @@
-import { basename } from "path";
 import { getLogger } from "../logger";
 import { FfProbeData, FfmpegExecProgress, Loglevel } from "../types/ffmpeg";
 import { execCommand } from "./childProcessUtil";
-import { readFile } from "fs/promises";
 
 const logger = getLogger('ffmpegUtil')
 async function execFfmpeg(cmd: string, options: {
@@ -48,21 +46,16 @@ function getFfmpegProgress(data: string): FfmpegExecProgress | undefined {
   }
 }
 
-async function ffprobe(videoFile: string) {
-  const filename = basename(videoFile)
-  const ffprobeJsonFile = `ffprobe.${filename}.json`
+async function ffprobe(videoFile: string): Promise<FfProbeData> {
   const cmd = 'ffprobe'
-  const params = ['-v', 'quiet', '-show_format', '-show_streams', '-print_format', 'json', videoFile, `> ${ffprobeJsonFile}`]
-  await execCommand({
-    cmd,
-    params
-  })
+  const params = ['-v', 'quiet', '-show_format', '-show_streams', '-print_format', 'json', videoFile]
   try {
-    const json = await readFile(ffprobeJsonFile, {
-      encoding: 'utf8'
-    })
-    return JSON.parse(json) as FfProbeData
-  } catch(e) {
+    const content = await execCommand({
+      cmd,
+      params
+    }) as string
+    return JSON.parse(content) as FfProbeData
+  } catch (e) {
     logger.error(`read ffprobe json file error, ${(e as Error).message}`)
     return {} as FfProbeData
   }

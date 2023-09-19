@@ -18,6 +18,12 @@ export class ContextNotFoundError extends Error {
   }
 }
 
+export class VideoStreamNotFoundError extends UnrecoverableError {
+  constructor() {
+    super('video stream not found')
+  }
+}
+
 export class JobIdError extends Error {}
 
 export class ChildProcessExecutionError extends Error {}
