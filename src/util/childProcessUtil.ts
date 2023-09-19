@@ -5,7 +5,7 @@ import {ChildProcessExecutionError} from "../error";
 export type ExecCommandParams = {
   cmd: string,
   params: string[],
-  onStdOutData?: () => void
+  onStdOutData?: (data: string) => void
 }
 const logger = getLogger('childProcessUtil')
 export async function execCommand(params: ExecCommandParams) {
@@ -21,6 +21,9 @@ export async function execCommand(params: ExecCommandParams) {
     p.stdout.on('data', (data) => {
       if (Date.now() - lastDataUpdate >= 1000) {
         logger.info(`${params.cmd} stdout: ${data}`)
+        if (params.onStdOutData) {
+          params.onStdOutData(data)
+        }
         lastDataUpdate = Date.now()
       }
     })
@@ -29,6 +32,9 @@ export async function execCommand(params: ExecCommandParams) {
       if (Date.now() - lastDataUpdate >= 1000) {
         logger.info(`${params.cmd} stderr: ${data}`)
         lastDataUpdate = Date.now()
+        if (params.onStdOutData) {
+          params.onStdOutData(data)
+        }
       }
       stderr = data
     })
