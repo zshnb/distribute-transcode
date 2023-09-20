@@ -2,7 +2,7 @@ import { spawn } from "child_process";
 import { getLogger } from "../logger";
 import {ChildProcessExecutionError} from "../error";
 
-const dataUpdatePeriod = 2000
+const dataUpdatePeriod = 5000
 export type ExecCommandParams = {
   cmd: string,
   params: string[],

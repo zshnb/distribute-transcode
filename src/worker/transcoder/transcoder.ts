@@ -6,6 +6,8 @@ import { getLogger } from "../../logger";
 import { FfProbeStream, FfmpegExecProgress } from "../../types/ffmpeg";
 import { VideoStreamNotFoundError } from "../../error";
 import { transcodeDirPath } from "../../util/paths";
+import { updateTranscodeProgress } from "../../store/taskStore";
+import { getCtx } from "../../context";
 
 const logger = getLogger('transcoder')
 async function processTranscode(job: Job): Promise<TranscodeJobResponse> {
@@ -14,6 +16,7 @@ async function processTranscode(job: Job): Promise<TranscodeJobResponse> {
   const videoFile = getVideoFile(request)
   logger.info(`transcoder received transcode job, segment index: ${index}, file: ${videoFile}`)
   const ffprobeData = await ffprobe(videoFile)
+  const totalFrames = getFrames()
   function getFrames(): number {
     const videoStream = getVideoStream()
     const fps = getVideoFps(videoStream)
@@ -34,13 +37,12 @@ async function processTranscode(job: Job): Promise<TranscodeJobResponse> {
   const ffmpegCmd = `ffmpeg -i ${videoFile} -c:v libx264 ${transcodeVideoFile}`
   await execFfmpeg(ffmpegCmd, {
     override: true,
-    onProgress: (data: FfmpegExecProgress) => {
-      logger.info(`frames: ${data.frames}, speed: ${data.speed}`)
-      job.updateProgress({
+    onProgress: async (data: FfmpegExecProgress) => {
+      logger.debug(`frames: ${data.frames}, speed: ${data.speed}`)
+      await updateTranscodeProgress(getCtx().taskId, index, {
+        totalFrames,
         frames: data.frames,
-        speed: data.speed,
-        totalFrames: getFrames(),
-        index
+        speed: data.speed
       })
     }
   })

@@ -54,7 +54,16 @@ async function setTranscodeCache(taskId: string, index: number, transcodeCache: 
     }
     transcodeCaches[index] = Object.assign(transcodeCaches[index], transcodeCache)
     await schedulerRedisClient.hSet(taskId, transcodeField, JSON.stringify(transcodeCaches))
-    logger.info(`hset ${taskId} ${transcodeField} ${JSON.stringify(transcodeCaches)}`)
+    logger.info(`hset ${taskId} ${transcodeField} ${JSON.stringify(transcodeCaches[index])}`)
+  })
+}
+
+async function updateTranscodeProgress(taskId: string, index: number, data: TranscodeProgressData) {
+  await transcodeMutex.runExclusive(async () => {
+    const transcodeCaches = await getTranscodeCaches(taskId)
+    transcodeCaches[index].progress = data
+    await schedulerRedisClient.hSet(taskId, transcodeField, JSON.stringify(transcodeCaches))
+    logger.debug(`hset ${taskId} ${transcodeField} ${index}: ${JSON.stringify(transcodeCaches[index])}`)
   })
 }
 
@@ -78,6 +87,7 @@ export {
   getSplitCache,
   setTranscodeCache,
   getTranscodeCaches,
+  updateTranscodeProgress,
   setConcatCache,
   getConcatCache
 }

@@ -37,9 +37,15 @@ export function initTranscodeQueue() {
     handleCompletedEvent: async (args, id) => {
       const {index, videoFile, fileStorageType} = JSON.parse(JSON.stringify(args.returnvalue)) as TranscodeJobResponse
       const taskId = getTaskIdByJobId(args.jobId)
+      const transcodeCache = (await getTranscodeCaches(taskId))[index.toString()]
       await setTranscodeCache(taskId, index, {
         state: 'completed',
-        videoFile
+        videoFile,
+        progress: {
+          totalFrames: transcodeCache.progress.totalFrames,
+          frames: transcodeCache.progress.totalFrames,
+          speed: transcodeCache.progress.speed
+        }
       })
       await checkAndAddConcatJob()
       async function checkAndAddConcatJob() {
@@ -61,7 +67,7 @@ export function initTranscodeQueue() {
       const index = getTranscodeIndex(args.jobId)
       await setTranscodeCache(taskId, index, {
         state: 'failed',
-        error: args.failedReason
+        error: args.failedReason.substring(0, 100)
       })
     }
   })

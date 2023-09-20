@@ -1,6 +1,9 @@
+import { writeFile } from "fs/promises";
 import { getLogger } from "../logger";
 import { FfProbeData, FfmpegExecProgress, Loglevel } from "../types/ffmpeg";
 import { execCommand } from "./childProcessUtil";
+import { basename } from "path";
+import { transcodeDirPath } from "./paths";
 
 const logger = getLogger('ffmpegUtil')
 async function execFfmpeg(cmd: string, options: {
@@ -34,7 +37,7 @@ async function execFfmpeg(cmd: string, options: {
 }
 
 function getFfmpegProgress(data: string): FfmpegExecProgress | undefined {
-  const pattern = /.*frame= (\d+).*speed=(.*)x.*/
+  const pattern = /.*frame=\s*(\d+).*speed=(.*)x.*/
   const matchResult = data.match(pattern)
   if (matchResult) {
     const frames = matchResult[1]
@@ -54,6 +57,7 @@ async function ffprobe(videoFile: string): Promise<FfProbeData> {
       cmd,
       params
     }) as string
+    await writeFile(`${await transcodeDirPath()}/ffprobe.${basename(videoFile)}.json`, content)
     return JSON.parse(content) as FfProbeData
   } catch (e) {
     logger.error(`read ffprobe json file error, ${(e as Error).message}`)
