@@ -1,6 +1,7 @@
 import { Queue, QueueEvents } from "bullmq";
 import { getLogger } from "../logger";
 import { QueueEnum } from "../types/queue";
+import { getCfg, getNumberCfg } from "../cfg";
 export type QueueParame = {
   name: QueueEnum
   handleAddedEvent: (args: { jobId: string, name: string }) => void
@@ -12,8 +13,8 @@ export type QueueParame = {
 
 }
 const redisConnection = {
-  host: 'localhost',
-  port: 6379
+  host: getCfg().REDIS_HOST,
+  port: getNumberCfg('REDIS_PORT')
 }
 const logger = getLogger('create-queue')
 export function createQueue(params: QueueParame) {

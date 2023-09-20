@@ -1,13 +1,13 @@
 import { writeFile } from "fs/promises";
 import { getLogger } from "../logger";
-import { FfProbeData, FfmpegExecProgress, Loglevel } from "../types/ffmpeg";
+import { FfProbeData, FfmpegExecProgress, FfmpegLoglevel } from "../types/ffmpeg";
 import { execCommand } from "./childProcessUtil";
 import { basename } from "path";
 import { transcodeDirPath } from "./paths";
 
 const logger = getLogger('ffmpegUtil')
 async function execFfmpeg(cmd: string, options: {
-  loglevel?: Loglevel
+  loglevel?: FfmpegLoglevel
   override?: boolean
   onProgress?: (execProgress: FfmpegExecProgress) => void
 }) {
