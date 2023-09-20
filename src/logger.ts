@@ -1,9 +1,10 @@
 import pino, { LogFn } from "pino";
 import { getCtx } from "./context";
+import { getCfg } from "./cfg";
 
 function buildRootLogger() {
   const logger = pino({
-    level: 'debug',
+    level: getCfg().LOGLEVEL,
     formatters: {
       level: (label) => {
         return { level: label.toUpperCase() };

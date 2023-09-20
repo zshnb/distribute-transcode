@@ -3,6 +3,7 @@ import { getLogger } from "../../logger";
 import { processSplit } from "./splitter";
 import { SplitJobRequest, SplitJobResponse } from "../../types/worker/splitter";
 import { Context, runWithContext } from "../../context";
+import { getCfg, getNumberCfg } from "../../cfg";
 
 const logger = getLogger('splitter-starter')
 let worker: Worker
@@ -22,8 +23,8 @@ function start() {
   }, {
     autorun: false,
     connection: {
-      host: 'localhost',
-      port: 6379
+      host: getCfg().REDIS_HOST,
+      port: getNumberCfg('REDIS_PORT')
     }
   })
   try {

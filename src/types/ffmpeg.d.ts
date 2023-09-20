@@ -1,4 +1,4 @@
-export type Loglevel = 'info' | 'error'
+export type FfmpegLoglevel = 'info' | 'error'
 
 export type FfmpegExecProgress = {
   speed: number
