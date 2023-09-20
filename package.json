@@ -4,7 +4,7 @@
   "description": "A distrbute system which can transcode large media via multiple machines",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "scheduler": "npx ts-node src/scheduler/index.ts",
     "splitter": "npx ts-node src/worker/splitter/index.ts",
     "concater": "npx ts-node src/worker/concater/index.ts",
@@ -33,5 +33,10 @@
     "redis": "^4.6.8",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.5",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1"
   }
 }

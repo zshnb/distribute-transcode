@@ -5,13 +5,21 @@ export type TaskCache = {
   finishedAt: string
   split: SplitCache
   transcode: {
-    [index: number]: TranscodeCache
+    [index: string]: TranscodeCache
   }
+  concat: ConcatCache
+}
+
+export type TranscodeProgressData = {
+  totalFrames: number
+  frames: number
+  speed: number
 }
 
 export type TranscodeCache = {
   state: JobState
   videoFile: string
+  progress: TranscodeProgressData,
   error?: string
 }
 

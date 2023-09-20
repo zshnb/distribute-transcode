@@ -8,6 +8,11 @@ export type TranscodeJobRequest = {
   fileUri?: string
 }
 
+export type TranscodeJobProgress = {
+  frames: number
+  speed: number
+}
+
 export type TranscodeJobResponse = {
   index: number
   videoFile: string
