@@ -2,3 +2,4 @@ node_modules/
 tmp
 build
 config/.env.local
+.idea
