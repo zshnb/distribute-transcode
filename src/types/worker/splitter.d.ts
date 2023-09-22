@@ -1,5 +1,6 @@
 export type FileStorageType = 'FileSystem' | 'OSS'
 export type SplitJobRequest = {
+  messageId: string
   taskId: string
   fileStorageType: FileStorageType
   filePath?: string

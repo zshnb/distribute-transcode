@@ -1,10 +1,12 @@
-import {schedulerRedisClient} from "../redis";
-import {ConcatCache, SplitCache, TranscodeCache, TranscodeProgressData} from "../types/task";
-import {Mutex} from "async-mutex";
-import {getLogger} from "../logger";
+import { schedulerRedisClient } from "../redis";
+import { ConcatCache, SplitCache, TranscodeCache, TranscodeProgressData } from "../types/task";
+import { Mutex } from "async-mutex";
+import { getLogger } from "../logger";
+import { NullError } from "../error";
 
 const splitField = 'split'
 const transcodeField = 'transcode'
+const messageIdField = 'messageId'
 const concatField = 'concat'
 const createdAtField = 'createdAt'
 const transcodeMutex = new Mutex()
@@ -12,8 +14,22 @@ const logger = getLogger('task-store')
 
 async function setCreatedAt(taskId: string) {
   const now = new Date().toISOString()
-  await schedulerRedisClient.hSetNX(taskId, createdAtField, now)
+  const result = await schedulerRedisClient.hSetNX(taskId, createdAtField, now)
   logger.info(`hsetnx ${createdAtField} ${now}`)
+  return result
+}
+
+async function setMessageId(taskId: string, messageId: string) {
+  await schedulerRedisClient.hSet(taskId, messageIdField, messageId)
+  logger.info(`hset ${messageIdField} ${messageId}`)
+}
+
+async function getMessageId(taskId: string): Promise<string> {
+  const messageId = await schedulerRedisClient.get(messageIdField)
+  if (!messageId) {
+    throw new NullError('messageId')
+  }
+  return messageId
 }
 
 async function setSplitCache(taskId: string, split: Partial<SplitCache>) {
@@ -23,7 +39,7 @@ async function setSplitCache(taskId: string, split: Partial<SplitCache>) {
 
 async function getSplitCache(taskId: string): Promise<SplitCache> {
   const value = await schedulerRedisClient.hGet(taskId, splitField)
-  if(value) {
+  if (value) {
     return JSON.parse(value) as SplitCache
   } else {
     return {} as SplitCache
@@ -83,6 +99,8 @@ async function getConcatCache(taskId: string): Promise<ConcatCache> {
 
 export {
   setCreatedAt,
+  setMessageId,
+  getMessageId,
   setSplitCache,
   getSplitCache,
   setTranscodeCache,

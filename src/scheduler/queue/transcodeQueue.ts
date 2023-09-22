@@ -1,11 +1,11 @@
-import {Queue} from "bullmq";
-import {createQueue} from "../queueCreator";
-import {getLogger} from "../../logger";
-import {getTaskIdByJobId} from "../../util/taskIdUtil";
-import {getSplitCache, getTranscodeCaches, setTranscodeCache} from "../../store/taskStore";
-import {TranscodeJobRequest, TranscodeJobResponse} from "../../types/worker/transcoder";
-import {JobIdError} from "../../error";
-import {addConcatJob} from "./concatQueue";
+import { Queue } from "bullmq";
+import { createQueue } from "../queueCreator";
+import { getLogger } from "../../logger";
+import { getTaskIdByJobId } from "../../util/taskIdUtil";
+import { getSplitCache, getTranscodeCaches, setTranscodeCache } from "../../store/taskStore";
+import { TranscodeJobRequest, TranscodeJobResponse } from "../../types/worker/transcoder";
+import { JobIdError } from "../../error";
+import { addConcatJob } from "./concatQueue";
 import { TranscodeProgressData } from "../../types/task";
 
 const logger = getLogger('transcode-queue')
@@ -23,7 +23,7 @@ export function initTranscodeQueue() {
 
     },
     handleProgressEvent: async (args: { jobId: string, data: number | object }, id: string) => {
-      const {frames, speed, totalFrames} = args.data as TranscodeProgressData
+      const { frames, speed, totalFrames } = args.data as TranscodeProgressData
       const taskId = getTaskIdByJobId(args.jobId)
       const index = getTranscodeIndex(args.jobId)
       await setTranscodeCache(taskId, index, {
@@ -35,7 +35,7 @@ export function initTranscodeQueue() {
       })
     },
     handleCompletedEvent: async (args, id) => {
-      const {index, videoFile, fileStorageType} = JSON.parse(JSON.stringify(args.returnvalue)) as TranscodeJobResponse
+      const { index, videoFile, fileStorageType } = JSON.parse(JSON.stringify(args.returnvalue)) as TranscodeJobResponse
       const taskId = getTaskIdByJobId(args.jobId)
       const transcodeCache = (await getTranscodeCaches(taskId))[index.toString()]
       await setTranscodeCache(taskId, index, {
@@ -83,9 +83,14 @@ function getTranscodeIndex(jobId: string) {
 }
 
 export async function addTranscodeJob(request: TranscodeJobRequest) {
-  const {taskId, index} = request
+  const { taskId, index } = request
   const jobId = `${taskId}:transcode:${index}`
   await queue.add(queueName, request, {
     jobId
   })
+}
+
+export async function getTranscodeActiveJobCount() {
+  const activeCount = await queue.getActiveCount()
+  return activeCount
 }

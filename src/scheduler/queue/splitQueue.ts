@@ -4,7 +4,7 @@ import { createQueue } from "../queueCreator";
 import { getLogger } from "../../logger";
 import { getTaskIdByJobId } from "../../util/taskIdUtil";
 import { setCreatedAt, setSplitCache } from "../../store/taskStore";
-import {addTranscodeJob} from "./transcodeQueue";
+import { addTranscodeJob } from "./transcodeQueue";
 
 const logger = getLogger('split-queue')
 let queue: Queue
@@ -14,10 +14,12 @@ export function initSplitQueue() {
     name: queueName,
     handleAddedEvent: async (args: { jobId: string, name: string }) => {
       const taskId = getTaskIdByJobId(args.jobId)
-      await setCreatedAt(taskId)
-      await setSplitCache(taskId, {
-        state: 'active'
-      })
+      const created = await setCreatedAt(taskId)
+      if (created) {
+        await setSplitCache(taskId, {
+          state: 'active'
+        })
+      }
     },
     handleCompletedEvent: async (args, id) => {
       const { segmentFiles, fileStorageType } = JSON.parse(JSON.stringify(args.returnvalue)) as SplitJobResponse
@@ -26,7 +28,7 @@ export function initSplitQueue() {
         segmentCount: segmentFiles.length,
         state: 'completed'
       })
-      for (let i = 0;i < segmentFiles.length;i++) {
+      for (let i = 0; i < segmentFiles.length; i++) {
         await addTranscodeJob({
           taskId,
           index: i,

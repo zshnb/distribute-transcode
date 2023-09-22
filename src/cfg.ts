@@ -1,5 +1,5 @@
 import * as DotEnv from 'dotenv'
-import {expand} from 'dotenv-expand'
+import { expand } from 'dotenv-expand'
 import path from 'path'
 import { existsSync, realpathSync } from 'fs'
 import { InvalidArgumentError } from './error'
@@ -9,6 +9,7 @@ export type Config = {
   REDIS_HOST: string
   REDIS_PORT: string
   LOGLEVEL: Loglevel
+  TRANSCODE_CONCURRENCY: string
 }
 
 function loadEnv(): Config {
@@ -80,7 +81,7 @@ function getCfgNumberProperty(
   }
 }
 
-function getNumberCfg(key: keyof Config): number {
+function getNumberEnv(key: keyof Config): number {
   return getCfgNumberProperty(key, 'integer')
 }
 
@@ -91,7 +92,7 @@ function getStringEnv(key: keyof Config): string {
 }
 
 export {
-  getNumberCfg,
+  getNumberEnv,
   getStringEnv,
   getCfg
 }

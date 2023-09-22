@@ -3,7 +3,7 @@ import { getLogger } from "../../logger";
 import { Context, runWithContext } from "../../context";
 import { processTranscode } from "./transcoder";
 import {TranscodeJobRequest, TranscodeJobResponse} from "../../types/worker/transcoder";
-import { getCfg, getNumberCfg } from "../../cfg";
+import { getCfg, getNumberEnv } from "../../cfg";
 
 const logger = getLogger('transcoder-starter')
 let worker: Worker
@@ -24,9 +24,9 @@ function start() {
     autorun: false,
     connection: {
       host: getCfg().REDIS_HOST,
-      port: getNumberCfg('REDIS_PORT')
+      port: getNumberEnv('REDIS_PORT')
     },
-    concurrency: 10
+    concurrency: getNumberEnv('TRANSCODE_CONCURRENCY')
   })
   try {
     worker.run()
