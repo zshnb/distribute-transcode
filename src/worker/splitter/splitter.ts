@@ -6,12 +6,14 @@ import { getCtx } from "../../context";
 import { tmpDirFor } from "../../util/pathUtil";
 import { createDir, getDirFiles } from "../../util/folderUtil";
 import { getVideoFile } from "../../util/videoUtil";
+import { setMessageId } from "../../store/taskStore";
 
 const logger = getLogger('splitter')
 export async function processSplit(job: Job): Promise<SplitJobResponse> {
   const request = job.data as SplitJobRequest
   logger.info(`splitter received split job, request: ${JSON.stringify(request)}`)
-  const { fileStorageType } = request
+  const { fileStorageType, taskId, messageId } = request
+  await setMessageId(taskId, messageId)
   const videoFile = getVideoFile(request)
   const segmentDir = await tmpDirFor(getCtx().taskId, 'segments')
   await createDir(segmentDir)

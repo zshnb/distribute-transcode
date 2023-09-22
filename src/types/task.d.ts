@@ -1,6 +1,7 @@
 import {JobState} from "bullmq"
 
 export type TaskCache = {
+  messageId: string // redis stream's message id
   createdAt: string
   finishedAt: string
   split: SplitCache
