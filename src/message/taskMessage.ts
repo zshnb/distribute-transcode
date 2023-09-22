@@ -3,7 +3,7 @@ import { schedulerRedisClient } from "../redis";
 export type TranscodeTaskMessage = {
   id: string
   message: {
-    trakscodeId: string
+    taskId: string
   }
 }
 const lastAckMessageKey = 'last-ack-message-id'
